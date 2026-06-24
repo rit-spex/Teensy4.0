@@ -39,6 +39,8 @@ namespace CANHandlers {
     // Activate arm
     void enableArm(const EnableArmMsg &msg) {
         if (static_cast<bool>(msg.enable)) {
+            // set the last heartbeat time to now, to prevent the timeout from immediately disabling the arm
+            Arm::lastROSHeartbeatTime = millis();
             #if ENABLE_SERIAL
                 Serial.println("Enabling Arm");
             #endif
@@ -66,15 +68,10 @@ namespace CANHandlers {
     //     Arm::moveElbow(dir);
     // }
 
-    void bendWrist(const BendWristMsg &msg) {
-        Serial.printf("Bend wrist received position: %f\n", msg.position);
+    void moveWrist(const MoveWristMsg &msg) {
+        Serial.printf("Wrist received position: bend %f, twist %f\n", msg.position_bend, msg.position_twist);
 
-        Arm::bendWrist(dyna, msg.position);
-    }
-
-    void twistWrist(const TwistWristMsg &msg) {
-        Serial.printf("Twist wrist received position: %f\n", msg.position);
-        Arm::twistWrist(dyna, msg.position);
+        Arm::moveWrist(dyna, msg.position_bend, msg.position_twist);
     }
     
     void moveGripper(const MoveGripperMsg &msg) {
